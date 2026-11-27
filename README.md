@@ -223,9 +223,7 @@ Each API chat request is assigned a short request ID to correlate application lo
 
 ### 7. Containerized the application
 
-The Dockerfile uses Python 3.11 and installs dependencies before copying the application. The container currently exposes Streamlit on port `10000` and serves `streamlit_app.py`.
-
-The TF-IDF entry point can replace the current Docker command when deploying to an environment with strict memory limits.
+The Dockerfile uses Python 3.11 and installs dependencies before copying the application. It runs the TF-IDF Streamlit app on port `10000` by default to reduce memory use on constrained hosting plans. For local semantic search, run `streamlit_app.py` directly.
 
 ## Design decisions
 
@@ -397,11 +395,7 @@ docker run --rm -p 10000:10000 \
 
 Open <http://localhost:10000>.
 
-The current `Dockerfile` starts `streamlit_app.py`, the ChromaDB version. For a low-memory deployment, change the final `CMD` in the `Dockerfile` to:
-
-```dockerfile
-CMD ["streamlit", "run", "streamlit_app_tfidf.py", "--server.port=10000", "--server.address=0.0.0.0"]
-```
+The Dockerfile starts `streamlit_app_tfidf.py` by default to avoid loading ChromaDB's embedding model in memory. To use semantic retrieval in a machine with more available memory, change its final `CMD` to run `streamlit_app.py`.
 
 ## Deploy to a platform
 
@@ -414,7 +408,7 @@ The application can be deployed as a Docker web service. In the hosting platform
 5. Deploy the service.
 6. Verify the health endpoint or open the public URL.
 
-Because free hosting tiers may have limited memory, the TF-IDF entry point is the safer default for hosted deployments.
+Because free hosting tiers may have limited memory, the Dockerfile uses the TF-IDF entry point by default.
 
 ## Retrieval options
 
